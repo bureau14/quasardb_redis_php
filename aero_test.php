@@ -4,7 +4,7 @@ require './aero.php';
 
 $config = array("hosts" => array(array("addr" => "trusty", "port" => 3000)));
 $db = new Aerospike($config, false);
-$r = new AerospikeRedis($db, "test");
+$r = new AerospikeRedis($db, "test", "redis");
 
 echo("Get Set\n");
 
@@ -21,6 +21,13 @@ assert($r->get('myKey2') == 13);
 $r->del('myKey');
 $r->del('myKey2');
 assert($r->get('myKey') == NULL);
+assert($r->get('myKey2') == NULL);
+
+echo("Flush\n");
+$r->set('myKey1', "a");
+$r->set('myKey2', "b");
+$r->flushdb();
+assert($r->get('myKey1') == NULL);
 assert($r->get('myKey2') == NULL);
 
 echo("Array\n");

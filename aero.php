@@ -4,14 +4,14 @@ class AerospikeRedis {
 
   const BIN_NAME = "r";
 
-  public function __construct($db, $db_name, $ns = "test") {
+  public function __construct($db, $ns, $set) {
     $this->db = $db;
-    $this->db_name = $db_name;
     $this->ns = $ns;
+    $this->set = $set;
   }
 
   private function format_key($key) {
-    return $this->db->initKey($this->ns, $this->db_name, $key);
+    return $this->db->initKey($this->ns, $this->set, $key);
   }
 
   private function check_result($status) {
@@ -65,7 +65,6 @@ class AerospikeRedis {
   public function rpop($key) {
     $status = $this->db->apply($this->format_key($key), "redis", "RPOP", array(self::BIN_NAME, 1), $ret_val);
     $this->check_result($status);
-    // var_dump($ret_val);
     return count($ret_val) == 0 ? NULL : $ret_val[0];
   }
 
@@ -73,6 +72,13 @@ class AerospikeRedis {
     $status = $this->db->apply($this->format_key($key), "redis", "LSIZE", array(self::BIN_NAME), $ret_val);
     $this->check_result($status);
     return is_array($ret_val) ? NULL : $ret_val;
+  }
+
+  public function flushdb() {
+    $options = array(Aerospike::OPT_SCAN_PRIORITY => Aerospike::SCAN_PRIORITY_HIGH);
+    $status = $this->db->scan($this->ns, $this->set, function ($record) {
+      $this->db->remove($record["key"]);
+    }, array(), $options);
   }
 
 }
