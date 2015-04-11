@@ -2,9 +2,17 @@
 
 require './aero.php';
 
-$config = array("hosts" => array(array("addr" => "trusty", "port" => 3000)));
-$db = new Aerospike($config, false);
-$r = new AerospikeRedis($db, "test", "redis");
+if (isset($_ENV['USE_REDIS'])) {
+  echo "Using Redis !!!!";
+  $r = new Redis();
+  $r->connect('127.0.0.1', 6379);
+}
+else {
+  $host = isset($_ENV['HOST']) ? ($_ENV['HOST']) : 'localhost'; 
+  $config = array("hosts" => array(array("addr" => $host, "port" => 3000)));
+  $db = new Aerospike($config, false);
+  $r = new AerospikeRedis($db, "test", "redis");
+}
 
 echo("Get Set\n");
 
