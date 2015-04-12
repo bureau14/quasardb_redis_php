@@ -31,6 +31,23 @@ class AerospikeRedis {
     }
   }
 
+  private function serialize($v) {
+    if (strpos($v, 0) !== false) {
+      return "__64__" . base64_encode($v);
+    }
+    return $v;
+  }
+
+  private function deserialize($v) {
+    if (substr($v, 0, 6) === "__64__") {
+      return base64_decode(substr($v, 6));
+    }
+    if (is_int($v)) {
+      $v = strval($v);
+    }
+    return $v;
+  }
+
   private function assert_ok($ret_val) {
     if ($ret_val != "OK") {
       throw new Exception("Aerospike error, result not OK ".$ret_val);
@@ -51,17 +68,17 @@ class AerospikeRedis {
   public function get($key) {
     $status = $this->db->apply($this->format_key($key), "redis", "GET", array(self::BIN_NAME), $ret_val);
     $this->check_result($status);
-    return $this->out(is_array($ret_val) ? NULL : $ret_val);
+    return $this->out(is_array($ret_val) ? false : $this->deserialize($ret_val));
   }
 
   public function ttl($key) {
     $status = $this->db->apply($this->format_key($key), "redis", "TTL", array(self::BIN_NAME), $ret_val);
     $this->check_result($status);
-    return $this->out(is_array($ret_val) ? NULL : $ret_val);
+    return $this->out(is_array($ret_val) ? false : $ret_val);
   }
 
   public function set($key, $value) {
-    $status = $this->db->apply($this->format_key($key), "redis", "SET", array(self::BIN_NAME, $value), $ret_val);
+    $status = $this->db->apply($this->format_key($key), "redis", "SET", array(self::BIN_NAME, $this->serialize($value)), $ret_val);
     $this->check_result($status);
     $this->assert_ok($ret_val);
     return $this->out(true);
@@ -70,8 +87,7 @@ class AerospikeRedis {
   public function del($key) {
     $status = $this->db->apply($this->format_key($key), "redis", "DEL", array(self::BIN_NAME), $ret_val);
     $this->check_result($status);
-    $this->assert_ok($ret_val);
-    return $this->out(true);
+    return $this->out(is_array($ret_val) ? false : $ret_val);
   }
 
   public function setex($key, $ttl, $value) {
@@ -82,21 +98,21 @@ class AerospikeRedis {
   }
 
   public function rpush($key, $value) {
-    $status = $this->db->apply($this->format_key($key), "redis", "RPUSH", array(self::BIN_NAME, $value), $ret_val);
+    $status = $this->db->apply($this->format_key($key), "redis", "RPUSH", array(self::BIN_NAME, $this->serialize($value)), $ret_val);
     $this->check_result($status);
-    return $this->out(is_array($ret_val) ? NULL : $ret_val);
+    return $this->out(is_array($ret_val) ? false : $ret_val);
   }
 
   public function rpop($key) {
     $status = $this->db->apply($this->format_key($key), "redis", "RPOP", array(self::BIN_NAME, 1), $ret_val);
     $this->check_result($status);
-    return $this->out(count($ret_val) == 0 ? NULL : $ret_val[0]);
+    return $this->out(count($ret_val) == 0 ? false : $this->deserialize($ret_val[0]));
   }
 
   public function lsize($key) {
     $status = $this->db->apply($this->format_key($key), "redis", "LSIZE", array(self::BIN_NAME), $ret_val);
     $this->check_result($status);
-    return $this->out(is_array($ret_val) ? NULL : $ret_val);
+    return $this->out(is_array($ret_val) ? 0 : $ret_val);
   }
 
   public function flushdb() {

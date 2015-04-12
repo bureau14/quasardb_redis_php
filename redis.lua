@@ -31,8 +31,9 @@ function DEL(rec, bin)
 	if EXISTS(rec, bin) then
 		rec[bin] = nil
 		UPDATE(rec)
+		return 1
 	end
-	return "OK"
+	return 0
 end
 
 function TTL(rec, bin)
