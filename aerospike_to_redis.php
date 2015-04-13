@@ -17,7 +17,7 @@ class AerospikeRedis {
 
   private function check_result($status) {
     if ($status != Aerospike::OK) {
-      throw new Exception("Aerospike error");
+      throw new Exception("Aerospike error :".$this->db->error());
     }
   }
 
