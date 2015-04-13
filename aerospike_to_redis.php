@@ -17,7 +17,7 @@ class AerospikeRedis {
 
   private function check_result($status) {
     if ($status != Aerospike::OK) {
-      throw new Exception("Aerospike error :".$this->db->error());
+      throw new Exception("Aerospike error : ".$this->db->error());
     }
   }
 
@@ -75,6 +75,13 @@ class AerospikeRedis {
     $status = $this->db->apply($this->format_key($key), "redis", "TTL", array(self::BIN_NAME), $ret_val);
     $this->check_result($status);
     return $this->out(is_array($ret_val) ? false : $ret_val);
+  }
+
+  public function setTimeout($key, $ttl) {
+    $status = $this->db->apply($this->format_key($key), "redis", "EXPIRE", array(self::BIN_NAME, $ttl), $ret_val);
+    $this->check_result($status);
+    $this->assert_ok($ret_val);
+    return $this->out(true);
   }
 
   public function set($key, $value) {

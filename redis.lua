@@ -56,6 +56,14 @@ function SETEX(rec, bin, value, ttl)
 	return "OK"
 end
 
+function EXPIRE(rec, bin, ttl)
+	if EXISTS(rec, bin) then
+		record.set_ttl(rec, ttl)
+		UPDATE(rec)
+	end
+	return "OK"
+end
+
 function LINDEX (rec, bin, index)
 	if (EXISTS(rec, bin)) then
 		l = rec[bin]

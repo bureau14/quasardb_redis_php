@@ -137,4 +137,13 @@ compare($r->ttl('myKey'), 1);
 sleep(2);
 compare($r->get('myKey'), false);
 
+compare($r->set('myKey', 'a'), true);
+sleep(3);
+compare($r->get('myKey'), "a");
+compare($r->setTimeout('myKey', 2), true);
+sleep(1);
+compare($r->ttl('myKey'), 1);
+sleep(2);
+compare($r->get('myKey'), false);
+
 echo("OK\n");
