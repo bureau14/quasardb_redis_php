@@ -123,4 +123,16 @@ class AerospikeRedis {
     return $this->out(true);
   }
 
+  public function connect($a1 = 1, $a2 = 1, $a3 = 1, $a4 = 1, $a5 = 1) {
+  }
+
+  public function pconnect($a1 = 1, $a2 = 1, $a3 = 1, $a4 = 1) {
+  }
+
+  public function close() {
+  }
+
+  public function pipeline() {
+  }
+
 }
