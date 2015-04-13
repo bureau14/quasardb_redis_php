@@ -92,6 +92,7 @@ echo("Array\n");
 
 $r->del('myKey');
 compare($r->rpop('myKey'), false);
+compare($r->lpop('myKey'), false);
 compare($r->lsize('myKey'), 0);
 compare($r->rpush('myKey', 'a'), 1);
 compare($r->rpush('myKey', 'b'), 2);
@@ -104,11 +105,11 @@ compare($r->rpush('myKey', 'e'), 4);
 compare($r->lsize('myKey'), 4);
 compare($r->rpop('myKey'), 'e');
 compare($r->lsize('myKey'), 3);
-compare($r->rpop('myKey'), 'c');
+compare($r->lpop('myKey'), 'a');
 compare($r->lsize('myKey'), 2);
-compare($r->rpop('myKey'), 'b');
+compare($r->rpop('myKey'), 'c');
 compare($r->lsize('myKey'), 1);
-compare($r->rpop('myKey'), 'a');
+compare($r->rpop('myKey'), 'b');
 compare($r->lsize('myKey'), 0);
 compare($r->rpop('myKey'), false);
 

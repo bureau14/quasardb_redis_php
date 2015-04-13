@@ -116,6 +116,12 @@ class AerospikeRedis {
     return $this->out(count($ret_val) == 0 ? false : $this->deserialize($ret_val[0]));
   }
 
+  public function lpop($key) {
+    $status = $this->db->apply($this->format_key($key), "redis", "LPOP", array(self::BIN_NAME, 1), $ret_val);
+    $this->check_result($status);
+    return $this->out(count($ret_val) == 0 ? false : $this->deserialize($ret_val[0]));
+  }
+
   public function lsize($key) {
     $status = $this->db->apply($this->format_key($key), "redis", "LSIZE", array(self::BIN_NAME), $ret_val);
     $this->check_result($status);
