@@ -131,6 +131,20 @@ compare($r->rpush('myKey', 'a'), $r);
 compare($r->rpop('myKey'), $r);
 compare($r->exec(), array(false, true, 'toto2', 1, 1, "a"));
 
+echo("Pipeline\n");
+
+$r->del('myKey');
+compare($r->pipeline(), $r);
+compare($r->exec(), array());
+compare($r->multi(), $r);
+compare($r->get('myKey'), $r);
+compare($r->set('myKey', 'toto2'), $r);
+compare($r->get('myKey'), $r);
+compare($r->del('myKey'), $r);
+compare($r->rpush('myKey', 'a'), $r);
+compare($r->rpop('myKey'), $r);
+compare($r->exec(), array(false, true, 'toto2', 1, 1, "a"));
+
 echo("SetEx\n");
 
 $r->del('myKey');

@@ -54,6 +54,10 @@ class AerospikeRedis {
     }
   }
 
+  public function pipeline() {
+    return $this->multi();
+  }
+
   public function multi() {
     $this->on_multi = array();
     return $this;
@@ -149,9 +153,6 @@ class AerospikeRedis {
   }
 
   public function close() {
-  }
-
-  public function pipeline() {
   }
 
 }
