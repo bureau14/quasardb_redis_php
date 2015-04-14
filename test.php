@@ -109,7 +109,11 @@ compare($r->lpop('myKey'), 'a');
 compare($r->lsize('myKey'), 2);
 compare($r->rpop('myKey'), 'c');
 compare($r->lsize('myKey'), 1);
+compare($r->lpush('myKey', 'z'), 2);
+compare($r->lsize('myKey'), 2);
 compare($r->rpop('myKey'), 'b');
+compare($r->lsize('myKey'), 1);
+compare($r->rpop('myKey'), 'z');
 compare($r->lsize('myKey'), 0);
 compare($r->rpop('myKey'), false);
 
