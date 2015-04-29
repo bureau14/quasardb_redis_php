@@ -1,1 +1,2 @@
-php.ini
+# Where to put quasardb binaries
+/qdb/
