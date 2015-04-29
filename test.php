@@ -6,7 +6,7 @@ $host = '127.0.0.1';
 echo "Using Quasardb on " . $host . "\n";
 $config = array(array("address" => $host, "port" => 2836));
 $db = new QdbCluster($config);
-$r = new QuasardbRedis($db, "test", "redis");
+$r = new QuasardbRedisWithMulti($db, "test", "redis");
 
 function dump($a) {
   ob_start();
