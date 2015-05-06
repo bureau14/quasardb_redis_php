@@ -2,10 +2,9 @@
 
 require './quasardb_to_redis.php';
 
-$host = '127.0.0.1';
-echo "Using Quasardb on " . $host . "\n";
-$config = array(array("address" => $host, "port" => 2836));
-$db = new QdbCluster($config);
+$uri = 'qdb://127.0.0.1:2836';
+echo "Using Quasardb at $uri\n";
+$db = new QdbCluster($uri);
 $r = new QuasardbRedisWithMulti($db, "test", "redis");
 
 function dump($a) {
