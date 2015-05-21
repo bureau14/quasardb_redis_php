@@ -12,5 +12,5 @@ call "%VCVARS%"
 
 start qdbd.exe -o --transient
 sleep 6
-"%PHP_BUILD_DIR%\php" "-dextension_dir=%PHP_BUILD_DIR%" "-dextension=php_qdb.dll" "test.php"
+"%PHP_BUILD_DIR%\php" "-dextension_dir=%PHP_BUILD_DIR%" "-dextension=php_quasardb.dll" "test.php"
 taskkill /im qdbd.exe /f
