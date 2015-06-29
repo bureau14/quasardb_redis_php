@@ -16,7 +16,7 @@ class QuasardbRedis {
 
   public function get($key) {
     try {
-      $ret_val =  $this->db->blob('blob.'.$key)->get();
+      $ret_val =  $this->db->blob($key)->get();
       return $this->deserialize($ret_val);
     }
     catch(QdbAliasNotFoundException $e ) {
@@ -25,12 +25,12 @@ class QuasardbRedis {
   }
 
   public function ttl($key) {
-    return $this->db->blob('blob.'.$key)->getExpiryTime() - time();
+    return $this->db->blob($key)->getExpiryTime() - time();
   }
 
   public function setTimeout($key, $ttl) {
     try {
-      $this->db->blob('blob.'.$key)->expiresFromNow($ttl);
+      $this->db->blob($key)->expiresFromNow($ttl);
       return true;
     }
     catch(QdbAliasNotFoundException $e ) {
@@ -39,13 +39,13 @@ class QuasardbRedis {
   }
 
   public function set($key, $value) {
-    $this->db->blob('blob.'.$key)->update($this->serialize($value));
+    $this->db->blob($key)->update($this->serialize($value));
     return true;
   }
 
   public function del($key) {
     try {
-      $this->db->blob('blob.'.$key)->remove();
+      $this->db->blob($key)->remove();
       return 1;
     }
     catch(QdbAliasNotFoundException $e) {
@@ -54,23 +54,23 @@ class QuasardbRedis {
   }
 
   public function setex($key, $ttl, $value) {
-    $this->db->blob('blob.'.$key)->update($value, time()+$ttl);
+    $this->db->blob($key)->update($value, time()+$ttl);
     return true;
   }
 
   public function rpush($key, $value) {
-    $this->db->queue('queue.'.$key)->pushBack($this->serialize($value));
+    $this->db->queue($key)->pushBack($this->serialize($value));
     return $this->change_queue_size($key, +1);
   }
 
   public function lpush($key, $value) {
-    $this->db->queue('queue.'.$key)->pushFront($this->serialize($value));
+    $this->db->queue($key)->pushFront($this->serialize($value));
     return $this->change_queue_size($key, +1);
   }
 
   public function rpop($key) {
     try {
-      $ret_val = $this->db->queue('queue.'.$key)->popBack();
+      $ret_val = $this->db->queue($key)->popBack();
       $this->change_queue_size($key, -1);
       return $this->deserialize($ret_val);
     }
@@ -84,7 +84,7 @@ class QuasardbRedis {
 
   public function lpop($key) {
     try {
-      $ret_val = $this->db->queue('queue.'.$key)->popFront();
+      $ret_val = $this->db->queue($key)->popFront();
       $this->change_queue_size($key, -1);
       return $this->deserialize($ret_val);
     }
