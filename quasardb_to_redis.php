@@ -60,24 +60,23 @@ class QuasardbRedis {
 
   public function rpush($key, $value) {
     $this->db->queue($key)->pushBack($this->serialize($value));
-    return $this->change_queue_size($key, +1);
+    return $this->db->queue($key)->size();
   }
 
   public function lpush($key, $value) {
     $this->db->queue($key)->pushFront($this->serialize($value));
-    return $this->change_queue_size($key, +1);
+    return $this->db->queue($key)->size();
   }
 
   public function rpop($key) {
     try {
       $ret_val = $this->db->queue($key)->popBack();
-      $this->change_queue_size($key, -1);
       return $this->deserialize($ret_val);
     }
     catch(QdbAliasNotFoundException $e ) {
       return false;
     }
-    catch(QdbEmptyContainerException $e ) {
+    catch(QdbContainerEmptyException $e ) {
       return false;
     }
   }
@@ -85,22 +84,21 @@ class QuasardbRedis {
   public function lpop($key) {
     try {
       $ret_val = $this->db->queue($key)->popFront();
-      $this->change_queue_size($key, -1);
       return $this->deserialize($ret_val);
     }
     catch(QdbAliasNotFoundException $e ) {
       return false;
     }
-    catch(QdbEmptyContainerException $e ) {
+    catch(QdbContainerEmptyException $e ) {
       return false;
     }
   }
 
   public function lsize($key) {
     try {
-      return $this->db->integer($key.'.length')->get();
+      return $this->db->queue($key)->size();
     }
-    catch(Exception $e ) {
+    catch(QdbAliasNotFoundException $e) {
       return 0;
     }
   }
@@ -116,22 +114,6 @@ class QuasardbRedis {
   }
 
   public function close() {
-  }
-
-  // Queue size is not supported yet, so we emulate it with an atomic integer
-  private function change_queue_size($key, $inc) {
-    try {
-      return $this->db->integer($key.'.length')->add($inc);
-    }
-    catch(QdbAliasNotFoundException $e) {
-      try {
-        $this->db->integer($key.'.length')->put($inc);
-        return $inc;
-      }
-      catch(QdbAliasAlreadyExistsException $e) {
-        return $this->db->integer($key.'.length')->add($inc);
-      }
-    }
   }
 }
 
