@@ -59,18 +59,18 @@ class QuasardbRedis {
   }
 
   public function rpush($key, $value) {
-    $this->db->queue($key)->pushBack($this->serialize($value));
-    return $this->db->queue($key)->size();
+    $this->db->deque($key)->pushBack($this->serialize($value));
+    return $this->db->deque($key)->size();
   }
 
   public function lpush($key, $value) {
-    $this->db->queue($key)->pushFront($this->serialize($value));
-    return $this->db->queue($key)->size();
+    $this->db->deque($key)->pushFront($this->serialize($value));
+    return $this->db->deque($key)->size();
   }
 
   public function rpop($key) {
     try {
-      $ret_val = $this->db->queue($key)->popBack();
+      $ret_val = $this->db->deque($key)->popBack();
       return $this->deserialize($ret_val);
     }
     catch(QdbAliasNotFoundException $e ) {
@@ -83,7 +83,7 @@ class QuasardbRedis {
 
   public function lpop($key) {
     try {
-      $ret_val = $this->db->queue($key)->popFront();
+      $ret_val = $this->db->deque($key)->popFront();
       return $this->deserialize($ret_val);
     }
     catch(QdbAliasNotFoundException $e ) {
@@ -96,7 +96,7 @@ class QuasardbRedis {
 
   public function lsize($key) {
     try {
-      return $this->db->queue($key)->size();
+      return $this->db->deque($key)->size();
     }
     catch(QdbAliasNotFoundException $e) {
       return 0;
