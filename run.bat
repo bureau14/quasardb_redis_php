@@ -10,6 +10,6 @@ set PATH=%PATH%;%QDB_DAEMON%\bin;%QDB_API%\bin
 call "%VCVARS%"
 
 start qdbd.exe --transient
-sleep 6
+ping 127.0.0.1 -n 6 > nul
 "%PHP_BUILD_DIR%\php" "-dextension_dir=%PHP_BUILD_DIR%" "-dextension=php_quasardb.dll" "test.php"
 taskkill /im qdbd.exe /f
