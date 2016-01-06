@@ -19,7 +19,10 @@ class QuasardbRedis {
       $ret_val =  $this->db->blob($key)->get();
       return $this->deserialize($ret_val);
     }
-    catch(QdbAliasNotFoundException $e ) {
+    catch(QdbIncompatibleTypeException $e) {
+      return "" . $this->db->integer($key)->get();
+    }
+    catch(QdbAliasNotFoundException $e) {
       return false;
     }
   }
@@ -51,6 +54,10 @@ class QuasardbRedis {
     catch(QdbAliasNotFoundException $e) {
       return 0;
     }
+  }
+
+  public function delete($key) {
+    $this->del($key);
   }
 
   public function setex($key, $ttl, $value) {
@@ -101,6 +108,31 @@ class QuasardbRedis {
     catch(QdbAliasNotFoundException $e) {
       return 0;
     }
+  }
+
+  public function incrby($key, $increment) {
+    try {
+      $this->db->integer($key)->put($increment);      
+      return $increment;
+    }
+    catch(QdbAliasAlreadyExistsException $e) {
+      return $this->db->integer($key)->add($increment);
+    }
+    catch(QdbIncompatibleTypeException $e) {
+      return false;
+    }
+  }
+
+  public function decrby($key, $decrement) {
+    return $this->incrby($key, -$decrement);
+  }
+
+  public function incr($key) {
+    return $this->incrby($key, 1);
+  }
+
+  public function decr($key) {
+    return $this->incrby($key, -1);
   }
 
   public function flushdb() {
