@@ -1,6 +1,7 @@
 <?php
 
 require_once 'QdbDequeWithExpiration.php';
+require_once 'QdbHmap.php';
 
 class QuasardbRedis {
 
@@ -58,18 +59,16 @@ class QuasardbRedis {
 
     // tags are used to emulate redis' hash
     if ($entry instanceof QdbTag) {
-      foreach ($entry->getEntries() as $field) {
-        $field->removeTag($entry); // <- case1152
-        $field->remove();
-      }
+      $entry = new QdbHmap($this->db, $key);
     }
 
     $entry->remove();
+
     return 1;
   }
 
   public function delete($key) {
-    $this->del($key);
+    return $this->del($key);
   }
 
   public function setex($key, $ttl, $value) {
@@ -175,26 +174,48 @@ class QuasardbRedis {
   }
 
   public function hget($key, $field) {
+    $map = new QdbHmap($this->db, $key);
     try {
-      return $this->db->blob("$key.$field")->get();
+      return $this->deserialize($map->at($field));
     }
     catch (QdbAliasNotFoundException $e) {
       return false;
     }
   }
 
+  public function hmget($key, $fields) {
+    $result = [];
+    $map = new QdbHmap($this->db, $key);
+    foreach ($fields as $field) {
+      try {
+        $result[$field] = $this->deserialize($map->at($field));
+      }
+      catch (QdbAliasNotFoundException $e) {
+        $result[$field] = false;
+      }
+    }
+    return $result;
+  }
+
   public function hset($key, $field, $value) {
-    $blob = $this->db->blob("$key.$field");
-    $blob->update((string)$value);
-    return $blob->addTag($key) ? 1 : 0;
+    $map = new QdbHmap($this->db, $key);
+    return $map->insert($field, $this->serialize($value)) ? 1 : 0;
+  }
+
+  public function hmset($key, $fields) {
+    $result = [];
+    $map = new QdbHmap($this->db, $key);
+    foreach ($fields as $field => $value) {
+      $map->insert($field, $this->serialize($value));
+    }
+    return true;
   }
 
   public function hdel($key, $field) {
-    $blob = $this->db->blob("$key.$field");
+    $map = new QdbHmap($this->db, $key);
     try {
-       $blob->removeTag($key); // <- case1152
-       $blob->remove();
-       return 1;
+      $map->erase($field);
+      return 1;
     }
     catch (QdbAliasNotFoundException $e) {
       return 0;

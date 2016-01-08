@@ -76,8 +76,8 @@
 * [ ] HINCRBYFLOAT
 * [ ] HKEYS
 * [ ] HLEN
-* [ ] HMGET
-* [ ] HMSET
+* [X] HMGET
+* [X] HMSET
 * [ ] HSCAN
 * [X] HSET
 * [ ] HSETNX
