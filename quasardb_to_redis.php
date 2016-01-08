@@ -48,12 +48,22 @@ class QuasardbRedis {
 
   public function del($key) {
     try {
-      $this->db->blob($key)->remove();
-      return 1;
+      $entry = $this->db->entry($key);
     }
     catch(QdbAliasNotFoundException $e) {
       return 0;
     }
+
+    // tags are used to emulate redis' hash
+    if ($entry instanceof QdbTag) {
+      foreach ($entry->getEntries() as $field) {
+        $field->removeTag($entry); // <- case1152
+        $field->remove();
+      }
+    }
+
+    $entry->remove();
+    return 1;
   }
 
   public function delete($key) {
@@ -145,13 +155,31 @@ class QuasardbRedis {
     }
   }
 
-  public function connect($a1 = 1, $a2 = 1, $a3 = 1, $a4 = 1, $a5 = 1) {
+  public function hget($key, $field) {
+    try {
+      return $this->db->blob("$key.$field")->get();
+    }
+    catch (QdbAliasNotFoundException $e) {
+      return false;
+    }
   }
 
-  public function pconnect($a1 = 1, $a2 = 1, $a3 = 1, $a4 = 1) {
+  public function hset($key, $field, $value) {
+    $blob = $this->db->blob("$key.$field");
+    $blob->update((string)$value);
+    return $blob->addTag($key) ? 1 : 0;
   }
 
-  public function close() {
+  public function hdel($key, $field) {
+    $blob = $this->db->blob("$key.$field");
+    try {
+       $blob->removeTag($key); // <- case1152
+       $blob->remove();
+       return 1;
+    }
+    catch (QdbAliasNotFoundException $e) {
+      return 0;
+    }
   }
 }
 
