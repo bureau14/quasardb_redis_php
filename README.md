@@ -71,7 +71,7 @@
 * [X] HDEL
 * [ ] HEXISTS
 * [X] HGET
-* [ ] HGETALL
+* [X] HGETALL
 * [ ] HINCRBY
 * [ ] HINCRBYFLOAT
 * [ ] HKEYS

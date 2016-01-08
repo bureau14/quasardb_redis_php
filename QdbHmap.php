@@ -4,15 +4,15 @@ class QdbHmap
 {
   public function __construct($db, $key) {
     $this->db = $db;
-    $this->rootKey = $key;
+    $this->trunkKey = $key;
   }
 
-  public function remove() {
-    $root = $this->db->tag($this->rootKey);
-    foreach ($root->getEntries() as $leaf) {
+  public function remove() { 
+    $trunk = $this->db->tag($this->trunkKey);   
+    foreach ($trunk->getEntries() as $leaf) {
       $leaf->remove();
     }
-    $root->remove();
+    $trunk->remove();
   }
 
   public function at($subkey) {
@@ -22,7 +22,7 @@ class QdbHmap
   public function insert($subkey, $value) {
     $leaf = $this->leaf($subkey);
     $leaf->update($value);
-    return $leaf->addTag($this->rootKey);
+    return $leaf->addTag($this->trunkKey);
   }
 
   public function erase($subkey) {
@@ -30,9 +30,22 @@ class QdbHmap
     $leaf->remove();
   }
 
+  public function values() {
+    $values = [];
+    $trunk = $this->db->tag($this->trunkKey);
+    foreach ($trunk->getEntries() as $leaf) {
+      $values[$this->subkey($leaf)] = $leaf->get();
+    }
+    return $values;
+  }
+
   private function leaf($subkey) {
-    $leafKey = $this->rootKey . '.' . $subkey;
+    $leafKey = $this->trunkKey . '.' . $subkey;
     return $this->db->blob($leafKey);
+  }
+
+  private function subkey($leaf) {
+    return substr($leaf->alias(), strlen($this->trunkKey)+1);
   }
 }
 

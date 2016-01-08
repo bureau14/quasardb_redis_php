@@ -203,12 +203,20 @@ class QuasardbRedis {
   }
 
   public function hmset($key, $fields) {
-    $result = [];
     $map = new QdbHmap($this->db, $key);
     foreach ($fields as $field => $value) {
       $map->insert($field, $this->serialize($value));
     }
     return true;
+  }
+
+  public function hgetall($key) {
+    $result = [];
+    $map = new QdbHmap($this->db, $key);
+    foreach ($map->values() as $key => $value) {
+      $result[$key] = $this->deserialize($value);
+    }
+    return $result;
   }
 
   public function hdel($key, $field) {
@@ -295,5 +303,17 @@ class QuasardbRedisWithMulti extends QuasardbRedis {
 
   public function lsize($key) {
     return $this->out(parent::lsize($key));
+  }
+
+  public function hget($key, $field) {
+    return $this->out(parent::hget($key, $field));
+  }
+
+  public function hmget($key, $fields) {
+    return $this->out(parent::hmget($key, $fields));
+  }
+
+  public function hgetall($key) {
+    return $this->out(parent::hgetall($key));
   }
 }
