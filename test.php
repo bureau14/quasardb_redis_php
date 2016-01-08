@@ -176,6 +176,16 @@ compare($r->rpop('myKey'), $bin);
 compare($r->rpush('myKey', $bin), 1);
 compare($r->rpop('myKey'), $bin);
 
+compare($r->rpushex('myKey', $bin, 1), 1);
+compare($r->lsize('myKey'), 1);
+sleep(3);
+compare($r->lsize('myKey'), 0);
+
+compare($r->lpushex('myKey', $bin, 1), 1);
+compare($r->lsize('myKey'), 1);
+sleep(3);
+compare($r->lsize('myKey'), 0);
+
 // echo("Array Ltrim lRange\n");
 
 // $r->del('myKey');

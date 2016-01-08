@@ -1,5 +1,7 @@
 <?php
 
+require_once 'QdbDequeWithExpiration.php';
+
 class QuasardbRedis {
 
   public function __construct($db) {
@@ -76,19 +78,35 @@ class QuasardbRedis {
   }
 
   public function rpush($key, $value) {
-    $this->db->deque($key)->pushBack($this->serialize($value));
-    return $this->db->deque($key)->size();
+    $deque = new QdbDequeWithExpiration($this->db, $key);
+    $deque->pushBack($this->serialize($value));
+    return $deque->size();
+  }
+
+  public function rpushex($key, $value, $ttl)  {
+    $deque = new QdbDequeWithExpiration($this->db, $key);
+    $deque->expiresFromNow($ttl);
+    $deque->pushBack($this->serialize($value));
+    return $deque->size();
   }
 
   public function lpush($key, $value) {
-    $this->db->deque($key)->pushFront($this->serialize($value));
-    return $this->db->deque($key)->size();
+    $deque = new QdbDequeWithExpiration($this->db, $key);
+    $deque->pushFront($this->serialize($value));
+    return $deque->size();
+  }
+
+  public function lpushex($key, $value, $ttl = -1) {
+    $deque = new QdbDequeWithExpiration($this->db, $key);
+    $deque->expiresFromNow($ttl);
+    $deque->pushFront($this->serialize($value));
+    return $deque->size();
   }
 
   public function rpop($key) {
+    $deque = new QdbDequeWithExpiration($this->db, $key);
     try {
-      $ret_val = $this->db->deque($key)->popBack();
-      return $this->deserialize($ret_val);
+      return $this->deserialize($deque->popBack());
     }
     catch(QdbAliasNotFoundException $e ) {
       return false;
@@ -99,9 +117,9 @@ class QuasardbRedis {
   }
 
   public function lpop($key) {
+    $deque = new QdbDequeWithExpiration($this->db, $key);
     try {
-      $ret_val = $this->db->deque($key)->popFront();
-      return $this->deserialize($ret_val);
+      return $this->deserialize($deque->popFront());
     }
     catch(QdbAliasNotFoundException $e ) {
       return false;
@@ -112,8 +130,9 @@ class QuasardbRedis {
   }
 
   public function lsize($key) {
+    $deque = new QdbDequeWithExpiration($this->db, $key);
     try {
-      return $this->db->deque($key)->size();
+      return $deque->size();
     }
     catch(QdbAliasNotFoundException $e) {
       return 0;
