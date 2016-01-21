@@ -176,7 +176,7 @@ class QuasardbRedis {
   public function hget($key, $field) {
     $map = new QdbHmap($this->db, $key);
     try {
-      return $this->deserialize($map->at($field));
+      return $this->deserialize(strval($map->at($field)->get()));
     }
     catch (QdbAliasNotFoundException $e) {
       return false;
@@ -188,7 +188,7 @@ class QuasardbRedis {
     $map = new QdbHmap($this->db, $key);
     foreach ($fields as $field) {
       try {
-        $result[$field] = $this->deserialize($map->at($field));
+        $result[$field] = $this->deserialize($map->at($field)->get());
       }
       catch (QdbAliasNotFoundException $e) {
         $result[$field] = false;
@@ -199,13 +199,13 @@ class QuasardbRedis {
 
   public function hset($key, $field, $value) {
     $map = new QdbHmap($this->db, $key);
-    return $map->insert($field, $this->serialize($value)) ? 1 : 0;
+    return $map->update($field, $this->serialize($value)) ? 1 : 0;
   }
 
   public function hmset($key, $fields) {
     $map = new QdbHmap($this->db, $key);
     foreach ($fields as $field => $value) {
-      $map->insert($field, $this->serialize($value));
+      $map->update($field, $this->serialize($value));
     }
     return true;
   }
@@ -214,7 +214,7 @@ class QuasardbRedis {
     $result = [];
     $map = new QdbHmap($this->db, $key);
     foreach ($map->values() as $key => $value) {
-      $result[$key] = $this->deserialize($value);
+      $result[$key] = $this->deserialize(strval($value));
     }
     return $result;
   }
@@ -227,6 +227,17 @@ class QuasardbRedis {
     }
     catch (QdbAliasNotFoundException $e) {
       return 0;
+    }
+  }
+
+  public function hincrby($key, $field, $increment) {
+    $map = new QdbHmap($this->db, $key);
+    try {
+      $map->put($field, $increment);
+      return $increment;
+    }
+    catch (QdbAliasAlreadyExistsException $e) {
+      return $map->at($field)->add($increment);
     }
   }
 }

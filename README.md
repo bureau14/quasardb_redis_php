@@ -72,7 +72,7 @@
 * [ ] HEXISTS
 * [X] HGET
 * [X] HGETALL
-* [ ] HINCRBY
+* [X] HINCRBY
 * [ ] HINCRBYFLOAT
 * [ ] HKEYS
 * [ ] HLEN
