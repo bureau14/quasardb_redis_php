@@ -17,6 +17,18 @@ class QuasardbRedis {
     return substr($v, 0, 6) === "__64__" ? base64_decode(substr($v, 6)) : $v;
   }
 
+  private function getEntry($key) {
+    $entry = $this->db->entry($key);
+    // tags are used to emulate redis' hash
+    if ($entry instanceof QdbTag) {
+      return new QdbHmap($this->db, $key);
+    }
+    if ($entry instanceof QdbDeque) {
+      return new QdbDequeWithExpiration($this->db, $key);
+    }
+    return $entry;
+  }
+
   public function get($key) {
     try {
       $ret_val =  $this->db->blob($key)->get();
@@ -31,17 +43,12 @@ class QuasardbRedis {
   }
 
   public function ttl($key) {
-    $entry = $this->db->entry($key);
-    // tags are used to emulate redis' hash
-    if ($entry instanceof QdbTag) {
-      $entry = new QdbHmap($this->db, $key);
-    }
-    return $entry->getExpiryTime() - time();
+    return $this->getEntry($key)->getExpiryTime() - time();
   }
 
   public function setTimeout($key, $ttl) {
     try {
-      $this->db->blob($key)->expiresFromNow($ttl);
+      $this->getEntry($key)->expiresFromNow($ttl);
       return true;
     }
     catch(QdbAliasNotFoundException $e ) {
@@ -56,23 +63,15 @@ class QuasardbRedis {
 
   public function del($key) {
     try {
-      $entry = $this->db->entry($key);
+      $this->getEntry($key)->remove();
+      return 1;
     }
     catch(QdbAliasNotFoundException $e) {
       return 0;
     }
-
-    // tags are used to emulate redis' hash
-    if ($entry instanceof QdbTag) {
-      $entry = new QdbHmap($this->db, $key);
-    }
-
-    $entry->remove();
-
-    return 1;
   }
 
-  public function delete($key) {
+  public function delete($key) {    
     return $this->del($key);
   }
 
@@ -326,6 +325,10 @@ class QuasardbRedisWithMulti extends QuasardbRedis {
 
   public function lsize($key) {
     return $this->out(parent::lsize($key));
+  }
+
+  public function hset($key, $field, $value) {
+    return $this->out(parent::hset($key, $field, $value));
   }
 
   public function hget($key, $field) {
