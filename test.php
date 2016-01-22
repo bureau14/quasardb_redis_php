@@ -103,28 +103,28 @@ $r->delete('myKey');
 compare($r->set('myKey', "a"), true);
 compare($r->incr('myKey'), false);
 
-// echo("Get Set binary\n");
+echo("Get Set binary\n");
 
-// $r->del('myKey');
+$r->del('myKey');
 
-// compare($r->get('myKey'), false);
-// compare($r->set('myKey', "toto\r\ntiti"), true);
-// compare($r->get('myKey'), "toto\r\ntiti");
+compare($r->get('myKey'), false);
+compare($r->set('myKey', "toto\r\ntiti"), true);
+compare($r->get('myKey'), "toto\r\ntiti");
 
-// compare($r->set('myKey', "toto\x00\x01\x02tata"), true);
-// compare($r->get('myKey'), "toto\x00\x01\x02tata");
+compare($r->set('myKey', "toto\x00\x01\x02tata"), true);
+compare($r->get('myKey'), "toto\x00\x01\x02tata");
 
-// echo("Get Set big data " . strlen($json)."\n");
+echo("Get Set big data " . strlen($json)."\n");
 
-// $r->del('myKey');
-// compare($r->get('myKey'), false);
-// compare($r->set('myKey', $json), true);
-// compare($r->get('myKey'), $json);
-// compare($r->del('myKey'), 1);
-// compare($r->rpush('myKey', $json), 1);
-// compare($r->rpop('myKey'), $json);
+$r->del('myKey');
+compare($r->get('myKey'), false);
+compare($r->set('myKey', $json), true);
+compare($r->get('myKey'), $json);
+compare($r->del('myKey'), 1);
+compare($r->rpush('myKey', $json), 1);
+compare($r->rpop('myKey'), $json);
 
-// echo("Get Set big data binary " . strlen($bin)."\n");
+echo("Get Set big data binary " . strlen($bin)."\n");
 
 // $r->del('myKey');
 // compare($r->get('myKey'), false);
@@ -134,12 +134,12 @@ compare($r->incr('myKey'), false);
 // compare($r->rpush('myKey', $bin), 1);
 // compare(gzuncompress($r->rpop('myKey')), $json);
 
-echo("Flush\n");
-compare($r->set('myKey1', "a"), true);
-compare($r->set('myKey2', "b"), true);
-compare($r->flushdb(), true);
-compare($r->get('myKey1'), false);
-compare($r->get('myKey2'), false);
+#echo("Flush\n");
+#compare($r->set('myKey1', "a"), true);
+#compare($r->set('myKey2', "b"), true);
+#compare($r->flushdb(), true);
+#compare($r->get('myKey1'), false);
+#compare($r->get('myKey2'), false);
 
 echo("Array\n");
 
@@ -186,12 +186,12 @@ compare($r->lsize('myKey'), 1);
 sleep(3);
 compare($r->lsize('myKey'), 0);
 
-// echo("Array Ltrim lRange\n");
+#echo("Array Ltrim lRange\n");
 
-// $r->del('myKey');
-// compare($r->lRange('myKey', 0, 0), array());
-// compare($r->rpush('myKey', 'a'), 1);
-// compare($r->lsize('myKey'), 1);
+#$r->del('myKey');
+#compare($r->lRange('myKey', 0, 0), array());
+#compare($r->rpush('myKey', 'a'), 1);
+#compare($r->lsize('myKey'), 1);
 // compare($r->lRange('myKey', 0, 0), array(0 => 'a'));
 // compare($r->ltrim('myKey', 0, 0), true);
 // compare($r->lRange('myKey', 0, 0), array(0 => 'a'));
@@ -321,63 +321,63 @@ compare_map($r->hGetAll('myKey'), array('b' => '3', 'toto' => '2'));
 compare($r->hmSet('myKey', array("b" => $bin)), true);
 compare($r->hGet('myKey', "b"), $bin);
 
-echo("hIncrBy\n");
+#echo("hIncrBy\n");
+#$r->del('myKey');
+#compare($r->hIncrBy('myKey', 'a', 1), 1);
+#compare($r->hGet('myKey', 'a'), "1");
+#compare($r->hIncrBy('myKey', 'a', 10), 11);
+#compare($r->hGet('myKey', 'a'), "11");
+#compare($r->hIncrBy('myKey', 'a', -15), -4);
+#compare($r->hIncrBy('myKey', 'a', 0), -4);
+#compare($r->hIncrBy('myKey', 'b', 2), 2);
+#compare_map($r->hGetAll('myKey'), array('a' => '-4', 'b' => '2'));
+#compare($r->del('myKey'), 1);
+#compare($r->hIncrBy('myKey', 'a', 0), 0);
+
+echo("hIncrByEx\n");
 $r->del('myKey');
-compare($r->hIncrBy('myKey', 'a', 1), 1);
-compare($r->hGet('myKey', 'a'), "1");
-compare($r->hIncrBy('myKey', 'a', 10), 11);
-compare($r->hGet('myKey', 'a'), "11");
-compare($r->hIncrBy('myKey', 'a', -15), -4);
-compare($r->hIncrBy('myKey', 'a', 0), -4);
-compare($r->hIncrBy('myKey', 'b', 2), 2);
-compare_map($r->hGetAll('myKey'), array('a' => '-4', 'b' => '2'));
-compare($r->del('myKey'), 1);
-compare($r->hIncrBy('myKey', 'a', 0), 0);
+compare($r->hIncrByEx('myKey', 'a', 2, 500), 2);
+compare($r->hIncrByEx('myKey', 'a', 1, 500), 3);
+upper($r->ttl('myKey'), 100);
+lower($r->ttl('myKey'), 1000);
 
-if (!isset($_ENV['USE_REDIS'])) {
-  echo("hIncrByEx\n");
-  $r->del('myKey');
-  compare($r->hIncrByEx('myKey', 'a', 2, 500), 2);
-  compare($r->hIncrByEx('myKey', 'a', 1, 500), 3);
-  upper($r->ttl('myKey'), 100);
-  lower($r->ttl('myKey'), 1000);
-
+if (false) {
   echo("Batch\n");
 
   $r->del('myKey');
   $r->del('myKey2');
-  // compare($r->batch('myKey2', array('setTimeout' => 200)), true);
-  // compare($r->ttl('myKey2'), -2);
+  compare($r->batch('myKey2', array('setTimeout' => 200)), true);
+  compare($r->ttl('myKey2'), -2);
 
-  // compare($r->batch('myKey', array('hIncrBy' => array('key' => 1, 'key2' => 5), 'setTimeout' => 10)), true);
-  // compare_map($r->hGetAll('myKey'), array('key' => '1', 'key2' => '5'));
-  // compare($r->batch('myKey', array('hIncrBy' => array('key2' => 6), 'setTimeout' => 200)), true);
-  // upper($r->ttl('myKey'), 100);
-  // lower($r->ttl('myKey'), 1000);
-  // compare_map($r->hGetAll('myKey'), array('key' => '1', 'key2' => '11'));
-  // compare($r->batch('myKey', array('hIncrBy' => array('key3' => 12), 'setTimeout' => 2)), true);
-  // compare_map($r->hGetAll('myKey'), array('key' => '1', 'key2' => '11', 'key3' => '12'));
-  // sleep(5);
-  // compare_map($r->hGetAll('myKey'), array());
+  compare($r->batch('myKey', array('hIncrBy' => array('key' => 1, 'key2' => 5), 'setTimeout' => 10)), true);
+  compare_map($r->hGetAll('myKey'), array('key' => '1', 'key2' => '5'));
+  compare($r->batch('myKey', array('hIncrBy' => array('key2' => 6), 'setTimeout' => 200)), true);
+  upper($r->ttl('myKey'), 100);
+  lower($r->ttl('myKey'), 1000);
+  compare_map($r->hGetAll('myKey'), array('key' => '1', 'key2' => '11'));
+  compare($r->batch('myKey', array('hIncrBy' => array('key3' => 12), 'setTimeout' => 2)), true);
+  compare_map($r->hGetAll('myKey'), array('key' => '1', 'key2' => '11', 'key3' => '12'));
+  sleep(5);
+  compare_map($r->hGetAll('myKey'), array());
 }
 
-echo("Exec/Multi\n");
+#echo("Exec/Multi\n");
 
-$r->del('myKey');
-$r->del('myKey2');
-compare($r->multi(), $r);
-compare($r->exec(), array());
-compare($r->multi(), $r);
-compare($r->get('myKey'), $r);
-compare($r->set('myKey', 'toto2'), $r);
-compare($r->get('myKey'), $r);
-compare($r->del('myKey'), $r);
-compare($r->rpush('myKey', 'a'), $r);
-compare($r->rpop('myKey'), $r);
-compare($r->setTimeout('myKey', 12), $r);
-compare($r->hSet('myKey2', 'a', 12), $r);
-compare($r->hGet('myKey2', 'a'), $r);
-compare($r->exec(), array(false, true, 'toto2', 1, 1, "a", false, 1, "12"));
+#$r->del('myKey');
+#$r->del('myKey2');
+#compare($r->multi(), $r);
+#compare($r->exec(), array());
+#compare($r->multi(), $r);
+#compare($r->get('myKey'), $r);
+#compare($r->set('myKey', 'toto2'), $r);
+#compare($r->get('myKey'), $r);
+#compare($r->del('myKey'), $r);
+#compare($r->rpush('myKey', 'a'), $r);
+#compare($r->rpop('myKey'), $r);
+#compare($r->setTimeout('myKey', 12), $r);
+#compare($r->hSet('myKey2', 'a', 12), $r);
+#compare($r->hGet('myKey2', 'a'), $r);
+#compare($r->exec(), array(false, true, 'toto2', 1, 1, "a", false, 1, "12"));
 
 echo("Pipeline\n");
 
@@ -393,28 +393,28 @@ compare($r->rpush('myKey', 'a'), $r);
 compare($r->rpop('myKey'), $r);
 compare($r->exec(), array(false, true, 'toto2', 1, 1, "a"));
 
-echo("Map timeout\n");
-$r->del('myKey');
-compare($r->hSet('myKey', "a", 2), 1);
-compare($r->setTimeout('myKey', 2), true);
-compare($r->hGet('myKey', "a"), '2');
-sleep(3);
-compare($r->hGet('myKey', "a"), false);
+#echo("Map timeout\n");
+#$r->del('myKey');
+#compare($r->hSet('myKey', "a", 2), 1);
+#compare($r->setTimeout('myKey', 2), true);
+#compare($r->hGet('myKey', "a"), '2');
+#sleep(3);
+#compare($r->hGet('myKey', "a"), false);
 
-echo("SetNx\n");
-$r->del('myKey');
-compare($r->setnx('myKey', 'a'), true);
-compare($r->setnx('myKey', 'b'), false);
-compare($r->get('myKey'), 'a');
+#echo("SetNx\n");
+#$r->del('myKey');
+#compare($r->setnx('myKey', 'a'), true);
+#compare($r->setnx('myKey', 'b'), false);
+#compare($r->get('myKey'), 'a');
 
-if (!isset($_ENV['USE_REDIS'])) {
-  echo("SetNxEx\n");
-  $r->del('myKey');
-  compare($r->setnxex('myKey', 2, 'a'), true);
-  compare($r->setnxex('myKey', 2, 'b'), false);
-  compare($r->get('myKey'), 'a');
-  sleep(3);
-  compare($r->get('myKey'), false);
+#if (!isset($_ENV['USE_REDIS'])) {
+#  echo("SetNxEx\n");
+#  $r->del('myKey');
+#  compare($r->setnxex('myKey', 2, 'a'), true);
+#  compare($r->setnxex('myKey', 2, 'b'), false);
+#  compare($r->get('myKey'), 'a');
+#  sleep(3);
+#  compare($r->get('myKey'), false);
 
   echo("Array Ex\n");
 
@@ -424,12 +424,18 @@ if (!isset($_ENV['USE_REDIS'])) {
   compare($r->lSize('myKey'), 1);
   sleep(3);
   compare($r->lSize('myKey'), 0);
-}
+  #compare($r->rpushEx('myKey', 'toto', 10), 1);
+  #compare($r->rpushEx('myKey', 'toto', 2), 1);
+  #compare($r->lSize('myKey'), 2);
+  #sleep(3);
+  #compare($r->lSize('myKey'), 0);
+  
+#}
 
 echo("SetEx\n");
 
-compare($r->setTimeout('not_existing key', 10), false);
-compare($r->ttl('not_existing key'), -2);
+#compare($r->setTimeout('not_existing key', 10), false);
+#compare($r->ttl('not_existing key'), -2);
 
 $r->del('myKey');
 compare($r->setex('myKey', 2, 'a'), true);

@@ -34,6 +34,11 @@ class QdbDequeWithExpiration extends QdbEntryWithExpiration {
     $this->handleExpiration();
     return $this->deque->pushFront($value);
   }
+
+  public function remove() {
+    parent::remove();
+    return $this->deque->remove();
+  }
   
   protected function removeExpiredEntry() {
     $this->deque->remove();

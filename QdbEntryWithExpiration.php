@@ -14,6 +14,10 @@ abstract class QdbEntryWithExpiration {
     return $this->marker->getExpiryTime();
   }
 
+  public function remove() {
+    return $this->marker->remove();
+  }
+
   abstract protected function removeExpiredEntry();
 
   protected function handleExpiration() {
