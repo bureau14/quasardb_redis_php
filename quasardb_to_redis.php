@@ -31,7 +31,12 @@ class QuasardbRedis {
   }
 
   public function ttl($key) {
-    return $this->db->blob($key)->getExpiryTime() - time();
+    $entry = $this->db->entry($key);
+    // tags are used to emulate redis' hash
+    if ($entry instanceof QdbTag) {
+      $entry = new QdbHmap($this->db, $key);
+    }
+    return $entry->getExpiryTime() - time();
   }
 
   public function setTimeout($key, $ttl) {
@@ -231,7 +236,14 @@ class QuasardbRedis {
   }
 
   public function hincrby($key, $field, $increment) {
+    return $this->hincrbyex($key, $field, $increment, -1);
+  }
+
+  public function hincrbyex($key, $field, $increment, $ttl) {
     $map = new QdbHmap($this->db, $key);
+    if ($ttl > 0 ) {
+      $map->expiresFromNow($ttl);
+    }
     try {
       $map->put($field, $increment);
       return $increment;

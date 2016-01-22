@@ -1,30 +1,36 @@
 <?php
 
-class QdbHmap
+require_once 'QdbEntryWithExpiration.php';
+
+class QdbHmap extends QdbEntryWithExpiration
 {
   public function __construct($db, $key) {
+    parent::__construct($db, $key);
     $this->db = $db;
     $this->trunkKey = $key;
     $this->tag = $db->tag($key);
   }
 
   public function remove() { 
-    $trunk = $this->db->tag($this->trunkKey);   
-    foreach ($trunk->getEntries() as $leaf) {
+    parent::handleExpiration();
+    foreach ($this->tag->getEntries() as $leaf) {
       $leaf->remove();
     }
-    $trunk->remove();
+    $this->tag->remove();
   }
 
   public function at($subkey) {
+    parent::handleExpiration();
     return $this->leaf($subkey);
   }
 
   public function erase($subkey) {
+    parent::handleExpiration();
     $this->leaf($subkey)->remove();
   }
 
   public function values() {
+    parent::handleExpiration();
     $values = [];
     foreach ($this->tag->getEntries() as $leaf) {
       $values[$this->subkey($leaf)] = $leaf->get();
@@ -33,6 +39,7 @@ class QdbHmap
   }
 
   public function put($subkey, $value) {
+    parent::handleExpiration();
     $leafKey = $this->leafKey($subkey);
     if (is_int($value)) {
       $this->db->integer($leafKey)->put($value);
@@ -43,6 +50,7 @@ class QdbHmap
   }
 
   public function update($subkey, $value) {
+    parent::handleExpiration();
     $leafKey = $this->leafKey($subkey);
     if (is_int($value)) {
       $this->db->integer($leafKey)->update($value);
@@ -50,6 +58,10 @@ class QdbHmap
       $this->db->blob($leafKey)->update($value);
     }
     return $this->tag->addEntry($leafKey);
+  }
+
+  protected function removeExpiredEntry() {
+    $this->remove();
   }
 
   private function leaf($subkey) {
