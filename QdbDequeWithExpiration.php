@@ -17,12 +17,16 @@ class QdbDequeWithExpiration extends QdbEntryWithExpiration {
 
   public function popBack() {
     $this->handleExpiration();
-    return $this->deque->popBack();
+    $value = $this->deque->popBack();
+    $this->removeIfEmpty();
+    return $value;
   }
 
   public function popFront() {
     $this->handleExpiration();
-    return $this->deque->popFront();
+    $value = $this->deque->popFront();
+    $this->removeIfEmpty();
+    return $value;
   }
 
   public function pushBack($value) {
@@ -42,6 +46,12 @@ class QdbDequeWithExpiration extends QdbEntryWithExpiration {
   
   protected function removeExpiredEntry() {
     $this->deque->remove();
+  }
+
+  private function removeIfEmpty() {
+    if ($this->deque->size() == 0) {
+      $this->remove();
+    }
   }
 }
 

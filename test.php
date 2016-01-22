@@ -321,18 +321,18 @@ compare_map($r->hGetAll('myKey'), array('b' => '3', 'toto' => '2'));
 compare($r->hmSet('myKey', array("b" => $bin)), true);
 compare($r->hGet('myKey', "b"), $bin);
 
-#echo("hIncrBy\n");
-#$r->del('myKey');
-#compare($r->hIncrBy('myKey', 'a', 1), 1);
-#compare($r->hGet('myKey', 'a'), "1");
-#compare($r->hIncrBy('myKey', 'a', 10), 11);
-#compare($r->hGet('myKey', 'a'), "11");
-#compare($r->hIncrBy('myKey', 'a', -15), -4);
-#compare($r->hIncrBy('myKey', 'a', 0), -4);
-#compare($r->hIncrBy('myKey', 'b', 2), 2);
-#compare_map($r->hGetAll('myKey'), array('a' => '-4', 'b' => '2'));
-#compare($r->del('myKey'), 1);
-#compare($r->hIncrBy('myKey', 'a', 0), 0);
+echo("hIncrBy\n");
+$r->del('myKey');
+compare($r->hIncrBy('myKey', 'a', 1), 1);
+compare($r->hGet('myKey', 'a'), "1");
+compare($r->hIncrBy('myKey', 'a', 10), 11);
+compare($r->hGet('myKey', 'a'), "11");
+compare($r->hIncrBy('myKey', 'a', -15), -4);
+compare($r->hIncrBy('myKey', 'a', 0), -4);
+compare($r->hIncrBy('myKey', 'b', 2), 2);
+compare_map($r->hGetAll('myKey'), array('a' => '-4', 'b' => '2'));
+compare($r->del('myKey'), 1);
+compare($r->hIncrBy('myKey', 'a', 0), 0);
 
 echo("hIncrByEx\n");
 $r->del('myKey');
@@ -361,23 +361,23 @@ if (false) {
   compare_map($r->hGetAll('myKey'), array());
 }
 
-#echo("Exec/Multi\n");
+echo("Exec/Multi\n");
 
-#$r->del('myKey');
-#$r->del('myKey2');
-#compare($r->multi(), $r);
-#compare($r->exec(), array());
-#compare($r->multi(), $r);
-#compare($r->get('myKey'), $r);
-#compare($r->set('myKey', 'toto2'), $r);
-#compare($r->get('myKey'), $r);
-#compare($r->del('myKey'), $r);
-#compare($r->rpush('myKey', 'a'), $r);
-#compare($r->rpop('myKey'), $r);
-#compare($r->setTimeout('myKey', 12), $r);
-#compare($r->hSet('myKey2', 'a', 12), $r);
-#compare($r->hGet('myKey2', 'a'), $r);
-#compare($r->exec(), array(false, true, 'toto2', 1, 1, "a", false, 1, "12"));
+$r->del('myKey');
+$r->del('myKey2');
+compare($r->multi(), $r);
+compare($r->exec(), array());
+compare($r->multi(), $r);
+compare($r->get('myKey'), $r);
+compare($r->set('myKey', 'toto2'), $r);
+compare($r->get('myKey'), $r);
+compare($r->del('myKey'), $r);
+compare($r->rpush('myKey', 'a'), $r);
+compare($r->rpop('myKey'), $r);
+compare($r->setTimeout('myKey', 12), $r);
+compare($r->hSet('myKey2', 'a', 12), $r);
+compare($r->hGet('myKey2', 'a'), $r);
+compare($r->exec(), array(false, true, 'toto2', 1, 1, "a", false, 1, "12"));
 
 echo("Pipeline\n");
 
