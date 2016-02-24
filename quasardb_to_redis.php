@@ -43,7 +43,12 @@ class QuasardbRedis {
   }
 
   public function ttl($key) {
-    return $this->getEntry($key)->getExpiryTime() - time();
+    try {
+      return $this->getEntry($key)->getExpiryTime() - time();
+    }
+    catch(QdbAliasNotFoundException $e) {
+      return -2;
+    }
   }
 
   public function setTimeout($key, $ttl) {
