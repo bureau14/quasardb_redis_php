@@ -4,7 +4,7 @@ require_once 'QdbEntryWithExpiration.php';
 
 // Current implementation of quasardb doesn't allow QdbDeque to have an expiration time.
 // This decorator adds that functionality
-class QdbDequeWithExpiration extends QdbEntryWithExpiration { 
+class QdbDequeWithExpiration extends QdbEntryWithExpiration {
   public function __construct($db, $key) {
     parent::__construct($db, $key);
     $this->deque = $db->deque($key);
@@ -13,7 +13,7 @@ class QdbDequeWithExpiration extends QdbEntryWithExpiration {
   public function size() {
     $this->handleExpiration();
     return $this->deque->size();
-  } 
+  }
 
   public function popBack() {
     $this->handleExpiration();
@@ -43,7 +43,7 @@ class QdbDequeWithExpiration extends QdbEntryWithExpiration {
     parent::remove();
     return $this->deque->remove();
   }
-  
+
   protected function removeExpiredEntry() {
     $this->deque->remove();
   }

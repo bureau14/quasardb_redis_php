@@ -1,6 +1,6 @@
 <?php
 
-require './quasardb_to_redis.php';
+require './QdbRedisAdapterWithMulti.php';
 
 
 class ProxyCounter {
@@ -26,7 +26,7 @@ class ProxyCounter {
 $uri = 'qdb://127.0.0.1:2836';
 echo "Using Quasardb at $uri\n";
 $db = new QdbCluster($uri);
-$r = new QuasardbRedisWithMulti($db, "test", "redis");
+$r = new QdbRedisAdapterWithMulti($db, "test-");
 
 $r = new ProxyCounter($r);
 

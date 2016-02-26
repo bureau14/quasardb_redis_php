@@ -11,7 +11,7 @@ class QdbHmap extends QdbEntryWithExpiration
     $this->tag = $db->tag($key);
   }
 
-  public function remove() { 
+  public function remove() {
     parent::handleExpiration();
     foreach ($this->tag->getEntries() as $leaf) {
       $leaf->remove();

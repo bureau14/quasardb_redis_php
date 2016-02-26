@@ -1,7 +1,7 @@
 <?php
 
 // Base class for decorators that adds expiration to an entry that doesn't natively support it.
-abstract class QdbEntryWithExpiration { 
+abstract class QdbEntryWithExpiration {
   public function __construct($db, $key) {
     $this->marker = $db->blob("$key.expiration");
   }
@@ -22,7 +22,7 @@ abstract class QdbEntryWithExpiration {
 
   protected function handleExpiration() {
     try {
-      $this->marker->put("no expiry");      
+      $this->marker->put("no expiry");
       try {
         $this->removeExpiredEntry();
         // here = the deque expired, so we removed it
